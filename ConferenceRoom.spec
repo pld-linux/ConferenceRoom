@@ -32,10 +32,10 @@ ConferenceRoom is an IRC Daemon.
 %install
 rm -rf $RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT{%{_datadir},%{_libdir},/var/{lib,log}}/%{name}
-cp -a programs/* $RPM_BUILD_ROOT%{_libdir}/%{name}
-cp -a db/*.base $RPM_BUILD_ROOT/var/lib/%{name}
-cp -a htdocs template variables $RPM_BUILD_ROOT%{_datadir}/%{name}
+install -d $RPM_BUILD_ROOT{%{_datadir},%{_libdir},/var/{lib,log}}/cr
+cp -a programs/* $RPM_BUILD_ROOT%{_libdir}/cr
+cp -a db/*.base $RPM_BUILD_ROOT/var/lib/cr
+cp -a htdocs template variables $RPM_BUILD_ROOT%{_datadir}/cr
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -55,6 +55,6 @@ fi
 %doc LICENSE.TXT PLATFORM README RELEASE
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*
-%{_datadir}/%{name}
+%{_datadir}/cr
 /var/lib/cr
 /var/log/cr
