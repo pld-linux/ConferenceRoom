@@ -1,5 +1,5 @@
 Summary:	ConferenceRoom IRC Server
-Summary(pl.UTF-8):	ConferenceRoom serwer IRC
+Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
 Release:	0.1
@@ -28,7 +28,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 ConferenceRoom is an IRC Daemon.
 
 %description -l pl.UTF-8
-ConferenceRoom to deamon IRCa.
+ConferenceRoom to serwer IRC-a.
 
 %prep
 %setup -q -n CR%{version}-Linux
