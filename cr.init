@@ -35,15 +35,18 @@ start() {
 		msg_starting "Conference Room IRC Daemon"; busy
 		start-stop-daemon --start \
 			--chdir /var/lib/cr \
-			--pidfile /var/lib/cr/CRServices.pid \
 			--exec /usr/lib/cr/programs/launcher \
 			--chuid ircd \
 			-- /var/lib/cr $SERVICES
 
 		RETVAL=$?
 		if [ $RETVAL -eq 0 ]; then
+			# write proper pidfile as it itself probably writes parent pid which is no longer there
+			pidfile=/var/lib/cr/CRServices.pid
+			pid=$(ps -o pid= -C ConfRoom | head -n1)
+			[ "$pid" ] && echo "$pid" > $pidfile
 			ok
-		   	touch /var/lock/subsys/cr
+			touch /var/lock/subsys/cr
 		else
 			fail
 		fi
