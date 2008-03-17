@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# cr	conferenceroom ircd service
+# cr	Conference Room IRC Daemon
 #
-# chkconfig:	345 11 89
+# chkconfig:	345 56 44
 #
-# description:	conferenceroom ircd service
+# description:	Conference Room is a IRC Daemon
 #
 # $Id$
 
@@ -15,7 +15,6 @@
 . /etc/sysconfig/network
 
 SERVICES="cr ws sv"
-PROGDIR=/usr/lib/cr
 
 # Get service config - may override defaults
 [ -f /etc/sysconfig/cr ] && . /etc/sysconfig/cr
@@ -33,33 +32,44 @@ fi
 start() {
 	# Check if the service is already running?
 	if [ ! -f /var/lock/subsys/cr ]; then
-		msg_starting "Conference Room IRCD"
-		set -x
-		daemon /usr/lib/cr/programs/launcher /usr/lib/cr $SERVICES
-#		daemon /usr/lib/cr/programs/launcher /etc/cr $SERVICES
+		msg_starting "Conference Room IRC Daemon"; busy
+		start-stop-daemon --start \
+			--chdir /var/lib/cr \
+			--pidfile /var/lib/cr/CRServices.pid \
+			--exec /usr/lib/cr/programs/launcher \
+			--chuid ircd \
+			-- /var/lib/cr $SERVICES
+
 		RETVAL=$?
-		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/cr
+		if [ $RETVAL -eq 0 ]; then
+			ok
+		   	touch /var/lock/subsys/cr
+		else
+			fail
+		fi
 	else
-		msg_already_running "Conference Room IRCD"
+		msg_already_running "Conference Room IRC Daemon"
 	fi
 }
 
 stop() {
 	if [ -f /var/lock/subsys/cr ]; then
 		# Stop daemons.
-		msg_stopping "Conference Room IRCD"
-		killproc ConfRoom
-		killproc WMws
-#		set -x
-#		cd /usr/lib/cr
-#		/usr/lib/cr/programs/ConfRoom -stop
-#		rc=$?
-#		/usr/lib/cr/programs/WMws -stop
-#		rc=$((rc + $?))
-#		[ "$rc" = 0 ] && ok || fail
+		msg_stopping "Conference Room IRC Daemon"
+		start-stop-daemon --stop --oknodo --pidfile /var/lib/cr/CRServices.pid && ok || fail
 		rm -f /var/lock/subsys/cr
 	else
-		msg_not_running "Conference Room IRCD"
+		msg_not_running "Conference Room IRC Daemon"
+	fi
+}
+
+condrestart() {
+	if [ -f /var/lock/subsys/cr ]; then
+		stop
+		start
+	else
+		msg_not_running "Conference Room IRC Daemon"
+		RETVAL=$1
 	fi
 }
 
@@ -75,14 +85,19 @@ case "$1" in
   restart)
 	stop
 	start
-	exit $?
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
 	;;
   status)
 	status cr
 	RETVAL=$?
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|status}"
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
 	exit 3
 esac
 
