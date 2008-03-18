@@ -2,7 +2,7 @@ Summary:	ConferenceRoom IRC Server
 Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
-Release:	0.11
+Release:	0.14
 License:	not distributable
 Group:		Applications/Communications
 Source0:	CR%{version}-Linux.tar.gz
@@ -24,12 +24,21 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 # already stripped
 %define		no_install_post_strip		1
 %define		no_install_post_chrpath		1
+%define		_enable_debug_packages		0
 
 %description
 ConferenceRoom is an IRC Daemon.
 
 %description -l pl.UTF-8
 ConferenceRoom to serwer IRC-a.
+
+%package web
+Summary:	ConferenceRoom Web components
+Group:		Applications/WWW
+Requires:	%{name} = %{version}-%{release}
+
+%description web
+ConferenceRoom Web components
 
 %prep
 %setup -q -n CR%{version}-Linux
@@ -73,11 +82,14 @@ fi
 %doc LICENSE.TXT PLATFORM README RELEASE
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*
-%{_datadir}/cr
 %dir /var/lib/cr
-%config(noreplace) %verify(not md5 mtime size) /var/lib/cr/*.conf
+%attr(660,root,ircd) %config(noreplace) %verify(not md5 mtime size) /var/lib/cr/*.conf
 %dir /var/lib/cr/db
 /var/lib/cr/db/craccess.log
 /var/lib/cr/db/logs
 /var/lib/cr/programs
 %dir /var/log/cr
+
+%files web
+%defattr(644,root,root,755)
+%{_datadir}/cr
