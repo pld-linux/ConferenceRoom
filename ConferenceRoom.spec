@@ -2,7 +2,7 @@ Summary:	ConferenceRoom IRC Server
 Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
-Release:	0.14
+Release:	0.15
 License:	not distributable
 Group:		Applications/Communications
 Source0:	CR%{version}-Linux.tar.gz
@@ -82,9 +82,9 @@ fi
 %doc LICENSE.TXT PLATFORM README RELEASE
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*
-%dir /var/lib/cr
+%dir %attr(775,root,ircd) /var/lib/cr
 %attr(660,root,ircd) %config(noreplace) %verify(not md5 mtime size) /var/lib/cr/*.conf
-%dir /var/lib/cr/db
+%dir %attr(770,root,ircd) /var/lib/cr/db
 /var/lib/cr/db/craccess.log
 /var/lib/cr/db/logs
 /var/lib/cr/programs
