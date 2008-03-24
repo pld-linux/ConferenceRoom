@@ -2,13 +2,16 @@ Summary:	ConferenceRoom IRC Server
 Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
-Release:	0.15
+Release:	0.16
 License:	not distributable
 Group:		Applications/Communications
 Source0:	CR%{version}-Linux.tar.gz
 # NoSource0-md5:	ee92ada3f47d6da20f4855c1d5710e92
 NoSource:	0
-Source1:	ConfRoom.conf
+Source1:	CR-help.tar.bz2
+# NoSource1-md5:	b36f3d57518751ab1652f81ff9bd2e34
+NoSource:	1
+Source2:	ConfRoom.conf
 URL:		http://www.conferenceroom.com/
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
@@ -41,17 +44,17 @@ Requires:	%{name} = %{version}-%{release}
 ConferenceRoom Web components
 
 %prep
-%setup -q -n CR%{version}-Linux
+%setup -q -n CR%{version}-Linux -a1
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 install -d $RPM_BUILD_ROOT{%{_datadir}/cr,%{_libdir}/cr/programs,/var/lib/cr/db,/var/log/cr}
 cp -a programs/* $RPM_BUILD_ROOT%{_libdir}/cr/programs
+cp -a help $RPM_BUILD_ROOT%{_datadir}/cr
 cp -a htdocs template variables $RPM_BUILD_ROOT%{_datadir}/cr
 cp -a mime.types $RPM_BUILD_ROOT%{_datadir}/cr
 cp -a db/ConfRoom.base $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
-cat %{SOURCE1} >> $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
+cat %{SOURCE2} >> $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
 ln -s %{_libdir}/cr/programs $RPM_BUILD_ROOT/var/lib/cr
 ln -s /var/log/cr $RPM_BUILD_ROOT/var/lib/cr/db/logs
 ln -s /var/log/cr/craccess.log $RPM_BUILD_ROOT/var/lib/cr/db/craccess.log
@@ -82,6 +85,8 @@ fi
 %doc LICENSE.TXT PLATFORM README RELEASE
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*
+%dir %{_datadir}/cr
+%{_datadir}/cr/help
 %dir %attr(775,root,ircd) /var/lib/cr
 %attr(660,root,ircd) %config(noreplace) %verify(not md5 mtime size) /var/lib/cr/*.conf
 %dir %attr(770,root,ircd) /var/lib/cr/db
@@ -92,4 +97,7 @@ fi
 
 %files web
 %defattr(644,root,root,755)
-%{_datadir}/cr
+%{_datadir}/cr/mime.types
+%{_datadir}/cr/htdocs
+%{_datadir}/cr/template
+%{_datadir}/cr/variables
