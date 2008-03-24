@@ -2,7 +2,7 @@ Summary:	ConferenceRoom IRC Server
 Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
-Release:	0.16
+Release:	0.18
 License:	not distributable
 Group:		Applications/Communications
 Source0:	CR%{version}-Linux.tar.gz
@@ -12,13 +12,17 @@ Source1:	CR-help.tar.bz2
 # NoSource1-md5:	b36f3d57518751ab1652f81ff9bd2e34
 NoSource:	1
 Source2:	ConfRoom.conf
+Source3:	cr.init
 URL:		http://www.conferenceroom.com/
+BuildRequires:	rpmbuild(macros) >= 1.268
+Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
+Requires:	rc-scripts
 Provides:	group(ircd)
 Provides:	user(ircd)
 ExclusiveArch:	%{ix86}
@@ -51,6 +55,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_datadir}/cr,%{_libdir}/cr/programs,/var/lib/cr/db,/var/log/cr}
 cp -a programs/* $RPM_BUILD_ROOT%{_libdir}/cr/programs
 cp -a help $RPM_BUILD_ROOT%{_datadir}/cr
+ln -s %{_datadir}/cr/help $RPM_BUILD_ROOT/var/lib/cr/help
 cp -a htdocs template variables $RPM_BUILD_ROOT%{_datadir}/cr
 cp -a mime.types $RPM_BUILD_ROOT%{_datadir}/cr
 cp -a db/ConfRoom.base $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
@@ -58,6 +63,7 @@ cat %{SOURCE2} >> $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
 ln -s %{_libdir}/cr/programs $RPM_BUILD_ROOT/var/lib/cr
 ln -s /var/log/cr $RPM_BUILD_ROOT/var/lib/cr/db/logs
 ln -s /var/log/cr/craccess.log $RPM_BUILD_ROOT/var/lib/cr/db/craccess.log
+install -D %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/cr
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -67,12 +73,19 @@ rm -rf $RPM_BUILD_ROOT
 %useradd -u 75 -d /var/lib/cr -g ircd -c "ConferenceRoom IRCD" ircd
 
 %post
+/sbin/chkconfig --add cr
 for a in craccess.log chan.log nick.log services.log; do
 	if [ ! -f /var/log/cr/$a ]; then
 		touch /var/log/cr/$a
 		chown ircd:ircd /var/log/cr/$a
 	fi
 done
+
+%preun
+if [ "$1" = "0" ]; then
+	%service -q cr stop
+	/sbin/chkconfig --del cr
+fi
 
 %postun
 if [ "$1" = "0" ]; then
@@ -83,6 +96,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc LICENSE.TXT PLATFORM README RELEASE
+%attr(754,root,root) /etc/rc.d/init.d/cr
 %dir %{_libdir}
 %attr(755,root,root) %{_libdir}/*
 %dir %{_datadir}/cr
@@ -92,6 +106,7 @@ fi
 %dir %attr(770,root,ircd) /var/lib/cr/db
 /var/lib/cr/db/craccess.log
 /var/lib/cr/db/logs
+/var/lib/cr/help
 /var/lib/cr/programs
 %dir /var/log/cr
 
