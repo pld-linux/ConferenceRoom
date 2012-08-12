@@ -2,14 +2,14 @@ Summary:	ConferenceRoom IRC Server
 Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
-Release:	0.19
+Release:	0.20
 License:	not distributable
 Group:		Applications/Communications
 Source0:	CR%{version}-Linux.tar.gz
 # NoSource0-md5:	ee92ada3f47d6da20f4855c1d5710e92
 NoSource:	0
 Source1:	CR-help.tar.bz2
-# NoSource1-md5:	b0c1055d2f0dfa411f682f930ebe7b05
+# NoSource1-md5:	2b88e7639c2d13b9d23efbb683cf2213
 NoSource:	1
 Source2:	ConfRoom.conf
 Source3:	cr.init
@@ -52,14 +52,17 @@ ConferenceRoom Web components
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_datadir}/cr,%{_libdir}/cr/programs,/var/lib/cr/db,/var/log/cr}
+install -d $RPM_BUILD_ROOT{%{_sysconfdir},%{_datadir}/cr,%{_libdir}/cr/programs,/var/lib/cr/db,/var/log/cr}
 cp -a programs/* $RPM_BUILD_ROOT%{_libdir}/cr/programs
 cp -a help $RPM_BUILD_ROOT%{_datadir}/cr
 ln -s %{_datadir}/cr/help $RPM_BUILD_ROOT/var/lib/cr/help
 cp -a htdocs template variables $RPM_BUILD_ROOT%{_datadir}/cr
 cp -a mime.types $RPM_BUILD_ROOT%{_datadir}/cr
-cp -a db/ConfRoom.base $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
-cat %{SOURCE2} >> $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
+
+cp -p db/ConfRoom.base $RPM_BUILD_ROOT%{_sysconfdir}/ConfRoom.conf
+cat %{SOURCE2} >> $RPM_BUILD_ROOT%{_sysconfdir}/ConfRoom.conf
+ln -s %{_sysconfdir}/ConfRoom.conf $RPM_BUILD_ROOT/var/lib/cr/ConfRoom.conf
+
 ln -s %{_libdir}/cr/programs $RPM_BUILD_ROOT/var/lib/cr
 ln -s /var/log/cr $RPM_BUILD_ROOT/var/lib/cr/db/logs
 ln -s /var/log/cr/craccess.log $RPM_BUILD_ROOT/var/lib/cr/db/craccess.log
@@ -96,14 +99,17 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc LICENSE.TXT PLATFORM README RELEASE
+%attr(660,root,ircd) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ConfRoom.conf
 %attr(754,root,root) /etc/rc.d/init.d/cr
 %dir %{_libdir}
-%attr(755,root,root) %{_libdir}/*
+%dir %{_libdir}/cr
+%dir %{_libdir}/cr/programs
+%attr(755,root,root) %{_libdir}/cr/programs/*
 %dir %{_datadir}/cr
 %{_datadir}/cr/help
 %dir %attr(775,root,ircd) /var/lib/cr
-%attr(660,root,ircd) %config(noreplace) %verify(not md5 mtime size) /var/lib/cr/*.conf
 %dir %attr(770,root,ircd) /var/lib/cr/db
+/var/lib/cr/ConfRoom.conf
 /var/lib/cr/db/craccess.log
 /var/lib/cr/db/logs
 /var/lib/cr/help
