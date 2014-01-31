@@ -2,7 +2,7 @@ Summary:	ConferenceRoom IRC Server
 Summary(pl.UTF-8):	ConferenceRoom - serwer IRC
 Name:		ConferenceRoom
 Version:	1.8.9.1
-Release:	0.21
+Release:	0.22
 License:	not distributable
 Group:		Applications/Communications
 Source0:	CR%{version}-Linux.tar.gz
@@ -22,7 +22,7 @@ Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
 Requires(pre):	/usr/sbin/useradd
-Requires:	rc-scripts
+Requires:	rc-scripts >= 0.4.1.26
 Provides:	group(ircd)
 Provides:	user(ircd)
 ExclusiveArch:	%{ix86}
